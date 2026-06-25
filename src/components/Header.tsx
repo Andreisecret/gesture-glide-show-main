@@ -11,20 +11,41 @@ export function Header() {
         </Link>
         <div className="flex items-center gap-6">
           <nav className="flex items-center gap-6 text-sm text-muted-foreground">
-            <Link to="/" activeOptions={{ exact: true }} activeProps={{ className: "text-foreground" }} className="hover:text-foreground">
+            <Link
+              to="/"
+              activeOptions={{ exact: true }}
+              activeProps={{ className: "text-foreground" }}
+              className="hover:text-foreground"
+            >
               Upload
             </Link>
-            <Link to="/google" activeProps={{ className: "text-foreground" }} className="inline-flex items-center gap-1.5 hover:text-foreground">
+            <Link
+              to="/google"
+              activeProps={{ className: "text-foreground" }}
+              className="inline-flex items-center gap-1.5 hover:text-foreground"
+            >
               <Presentation className="size-3.5" />
               Google Slides
             </Link>
-            <Link to="/present" activeProps={{ className: "text-foreground" }} className="hover:text-foreground">
+            <Link
+              to="/present"
+              activeProps={{ className: "text-foreground" }}
+              className="hover:text-foreground"
+            >
               Present
             </Link>
-            <Link to="/settings" activeProps={{ className: "text-foreground" }} className="hover:text-foreground">
+            <Link
+              to="/settings"
+              activeProps={{ className: "text-foreground" }}
+              className="hover:text-foreground"
+            >
               Settings
             </Link>
-            <Link to="/help" activeProps={{ className: "text-foreground" }} className="hover:text-foreground">
+            <Link
+              to="/help"
+              activeProps={{ className: "text-foreground" }}
+              className="hover:text-foreground"
+            >
               Help
             </Link>
           </nav>

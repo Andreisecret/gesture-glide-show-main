@@ -2,25 +2,40 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  ChevronLeft, ChevronRight, Hand, Maximize, Minimize, Camera, CameraOff,
-  Upload, Pause, Play,
+  ChevronLeft,
+  ChevronRight,
+  Hand,
+  Maximize,
+  Minimize,
+  Camera,
+  CameraOff,
+  Upload,
+  Pause,
+  Play,
+  Loader2,
 } from "lucide-react";
 import { useDeck, runAction, type GestureName } from "@/lib/deckStore";
 import { useHandGestures } from "@/hooks/useHandGestures";
 import { Button } from "@/components/ui/button";
+import type { Instance as NutrientInstance } from "@nutrient-sdk/viewer";
 
 export const Route = createFileRoute("/present")({
   head: () => ({
     meta: [
       { title: "Presenter — GestureDeck" },
-      { name: "description", content: "Run your slide deck full-screen and drive it with webcam hand gestures — swipe, fist, point, all locally in your browser." },
+      {
+        name: "description",
+        content:
+          "Run your slide deck full-screen and drive it with webcam hand gestures — swipe, fist, point, all locally in your browser.",
+      },
       { property: "og:title", content: "Presenter — GestureDeck" },
-      { property: "og:description", content: "Run your slide deck full-screen and drive it with webcam hand gestures." },
+      {
+        property: "og:description",
+        content: "Run your slide deck full-screen and drive it with webcam hand gestures.",
+      },
       { property: "og:url", content: "https://gesture-glide-show.lovable.app/present" },
     ],
-    links: [
-      { rel: "canonical", href: "https://gesture-glide-show.lovable.app/present" },
-    ],
+    links: [{ rel: "canonical", href: "https://gesture-glide-show.lovable.app/present" }],
   }),
   component: PresentPage,
 });
@@ -33,6 +48,8 @@ function PresentPage() {
   const blank = useDeck((s) => s.blank);
   const pointer = useDeck((s) => s.pointer);
   const settings = useDeck((s) => s.settings);
+  const documentUrl = useDeck((s) => s.documentUrl);
+  const totalPages = useDeck((s) => s.totalPages);
   const next = useDeck((s) => s.next);
   const prev = useDeck((s) => s.prev);
   const toggleBlank = useDeck((s) => s.toggleBlank);
@@ -49,13 +66,20 @@ function PresentPage() {
   const [chromeVisible, setChromeVisible] = useState(true);
   const hideTimer = useRef<number | null>(null);
 
-  const onGesture = useCallback((g: GestureName) => {
-    if (paused) return;
-    const action = settings.bindings[g];
-    runAction(action);
-  }, [settings.bindings, paused]);
+  const onGesture = useCallback(
+    (g: GestureName) => {
+      if (paused) return;
+      const action = settings.bindings[g];
+      runAction(action);
+    },
+    [settings.bindings, paused],
+  );
 
-  const { ready, error, current: gestureNow } = useHandGestures({
+  const {
+    ready,
+    error,
+    current: gestureNow,
+  } = useHandGestures({
     enabled: camOn && slides.length > 0,
     cooldownMs: settings.cooldownMs,
     sensitivity: settings.sensitivity,
@@ -69,9 +93,13 @@ function PresentPage() {
   // Keyboard
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") { e.preventDefault(); next(); }
-      else if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); prev(); }
-      else if (e.key === "b" || e.key === "B") toggleBlank();
+      if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") {
+        e.preventDefault();
+        next();
+      } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+        e.preventDefault();
+        prev();
+      } else if (e.key === "b" || e.key === "B") toggleBlank();
       else if (e.key === "f" || e.key === "F") toggleFs();
       else if (e.key === "p" || e.key === "P") setPaused((v) => !v);
       else if (e.key === "Escape" && document.fullscreenElement) document.exitFullscreen();
@@ -87,6 +115,65 @@ function PresentPage() {
     return () => document.removeEventListener("fullscreenchange", onFs);
   }, []);
 
+  // Nutrient Web SDK — mount/unmount
+  const nutrientRef = useRef<HTMLDivElement>(null);
+  const nutrientInstance = useRef<NutrientInstance | null>(null);
+  const [nutrientReady, setNutrientReady] = useState(false);
+
+  useEffect(() => {
+    const container = nutrientRef.current;
+    if (!documentUrl || !container) return;
+
+    let instance: NutrientInstance | null = null;
+    let mounted = true;
+
+    (async () => {
+      const NV = (await import("@nutrient-sdk/viewer")).default;
+      NV.unload(container);
+
+      const initVS = new NV.ViewState({
+        currentPageIndex: useDeck.getState().current,
+        layoutMode: NV.LayoutMode.SINGLE,
+        scrollMode: NV.ScrollMode.DISABLED,
+        showToolbar: false,
+        sidebarMode: null,
+      });
+
+      instance = (await NV.load({
+        container,
+        document: documentUrl,
+        useCDN: true,
+        licenseKey: "",
+        initialViewState: initVS,
+        toolbarItems: [],
+      })) as NutrientInstance;
+
+      if (!mounted) {
+        NV.unload(container);
+        return;
+      }
+
+      nutrientInstance.current = instance;
+      setNutrientReady(true);
+    })();
+
+    return () => {
+      mounted = false;
+      if (container) {
+        import("@nutrient-sdk/viewer").then((m) => m.default.unload(container));
+      }
+    };
+  }, [documentUrl]);
+
+  // Sync store.current → Nutrient page
+  useEffect(() => {
+    const inst = nutrientInstance.current;
+    if (!inst) return;
+    if (inst.viewState.currentPageIndex !== current) {
+      inst.setViewState(inst.viewState.set("currentPageIndex", current));
+    }
+  }, [current]);
+
   // Auto-hide chrome
   useEffect(() => {
     const onMove = () => {
@@ -96,7 +183,10 @@ function PresentPage() {
     };
     window.addEventListener("mousemove", onMove);
     onMove();
-    return () => { window.removeEventListener("mousemove", onMove); if (hideTimer.current) clearTimeout(hideTimer.current); };
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      if (hideTimer.current) clearTimeout(hideTimer.current);
+    };
   }, []);
 
   function toggleFs() {
@@ -105,16 +195,20 @@ function PresentPage() {
     else containerRef.current.requestFullscreen?.();
   }
 
-  if (slides.length === 0) {
+  if (!documentUrl && slides.length === 0) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background px-6 text-center">
         <Hand className="size-12 text-muted-foreground" />
         <h1 className="font-mono text-2xl">No deck loaded</h1>
-        <p className="max-w-md text-sm text-muted-foreground">Upload a PDF to start presenting with hand gestures.</p>
-        <Button onClick={() => navigate({ to: "/" })}><Upload className="mr-2 size-4" /> Upload a deck</Button>
+        <p className="max-w-md text-sm text-muted-foreground">
+          Upload a PDF to start presenting with hand gestures.
+        </p>
+        <Button onClick={() => navigate({ to: "/" })}>
+          <Upload className="mr-2 size-4" /> Upload a deck
+        </Button>
       </div>
-  );
-}
+    );
+  }
 
   const slide = slides[current];
 
@@ -125,9 +219,22 @@ function PresentPage() {
       style={{ cursor: chromeVisible ? "default" : "none" }}
     >
       <h1 className="sr-only">{deckName ? `Presenting ${deckName}` : "Presenter"}</h1>
-      {/* Slide */}
-      <div className="absolute inset-0 flex items-center justify-center p-6">
-        {!blank && (
+
+      {/* Slide — Nutrient Web SDK viewer */}
+      {documentUrl && (
+        <div className="absolute inset-0" style={{ visibility: blank ? "hidden" : "visible" }}>
+          <div ref={nutrientRef} className="h-full w-full" />
+          {!nutrientReady && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black">
+              <Loader2 className="size-10 animate-spin text-white/50" />
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Slide — Image fallback (Google Slides) */}
+      {!documentUrl && !blank && slides.length > 0 && (
+        <div className="absolute inset-0 flex items-center justify-center p-6">
           <img
             key={slide.url}
             src={slide.url}
@@ -135,8 +242,8 @@ function PresentPage() {
             className="max-h-full max-w-full rounded-md shadow-2xl"
             draggable={false}
           />
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Laser pointer */}
       <AnimatePresence>
@@ -149,7 +256,8 @@ function PresentPage() {
             style={{
               left: `${pointerPos.x * 100}%`,
               top: `${pointerPos.y * 100}%`,
-              background: "radial-gradient(circle, oklch(0.7 0.3 25) 0%, oklch(0.6 0.3 25 / 0.6) 50%, transparent 70%)",
+              background:
+                "radial-gradient(circle, oklch(0.7 0.3 25) 0%, oklch(0.6 0.3 25 / 0.6) 50%, transparent 70%)",
               boxShadow: "0 0 20px oklch(0.7 0.3 25 / 0.8)",
             }}
           />
@@ -165,14 +273,27 @@ function PresentPage() {
             exit={{ y: -40, opacity: 0 }}
             className="absolute left-0 right-0 top-0 flex items-center justify-between px-4 py-3"
           >
-            <Link to="/" className="rounded-md bg-hud px-3 py-1.5 font-mono text-xs text-hud-foreground backdrop-blur">
+            <Link
+              to="/"
+              className="rounded-md bg-hud px-3 py-1.5 font-mono text-xs text-hud-foreground backdrop-blur"
+            >
               ← Exit
             </Link>
             <div className="flex items-center gap-2">
-              <button onClick={() => setCamOn((v) => !v)} aria-label={camOn ? "Turn camera off" : "Turn camera on"} className="rounded-md bg-hud px-2 py-1.5 text-hud-foreground backdrop-blur" title="Toggle camera">
+              <button
+                onClick={() => setCamOn((v) => !v)}
+                aria-label={camOn ? "Turn camera off" : "Turn camera on"}
+                className="rounded-md bg-hud px-2 py-1.5 text-hud-foreground backdrop-blur"
+                title="Toggle camera"
+              >
                 {camOn ? <Camera className="size-4" /> : <CameraOff className="size-4" />}
               </button>
-              <button onClick={toggleFs} aria-label={isFs ? "Exit fullscreen" : "Enter fullscreen"} className="rounded-md bg-hud px-2 py-1.5 text-hud-foreground backdrop-blur" title="Fullscreen">
+              <button
+                onClick={toggleFs}
+                aria-label={isFs ? "Exit fullscreen" : "Enter fullscreen"}
+                className="rounded-md bg-hud px-2 py-1.5 text-hud-foreground backdrop-blur"
+                title="Fullscreen"
+              >
                 {isFs ? <Minimize className="size-4" /> : <Maximize className="size-4" />}
               </button>
             </div>
@@ -189,17 +310,47 @@ function PresentPage() {
             exit={{ y: 40, opacity: 0 }}
             className="absolute bottom-0 left-0 right-0 flex items-center justify-center gap-3 p-4"
           >
-            <button onClick={prev} aria-label="Previous slide" className="rounded-md bg-hud px-3 py-2 text-hud-foreground backdrop-blur"><ChevronLeft className="size-4" /></button>
-            <div className="rounded-md bg-hud px-4 py-2 font-mono text-sm text-hud-foreground backdrop-blur" aria-label={`Slide ${current + 1} of ${slides.length}`}>
-              {current + 1} / {slides.length}
+            <button
+              onClick={prev}
+              aria-label="Previous slide"
+              className="rounded-md bg-hud px-3 py-2 text-hud-foreground backdrop-blur"
+            >
+              <ChevronLeft className="size-4" />
+            </button>
+            <div
+              className="rounded-md bg-hud px-4 py-2 font-mono text-sm text-hud-foreground backdrop-blur"
+              aria-label={`Slide ${current + 1} of ${documentUrl ? totalPages : slides.length}`}
+            >
+              {current + 1} / {documentUrl ? totalPages : slides.length}
             </div>
-            <button onClick={next} aria-label="Next slide" className="rounded-md bg-hud px-3 py-2 text-hud-foreground backdrop-blur"><ChevronRight className="size-4" /></button>
-            <button onClick={() => setPaused((v) => !v)} aria-label={paused ? "Resume gesture control" : "Pause gesture control"} className={`rounded-md px-2 py-2 backdrop-blur ${paused ? "bg-primary text-primary-foreground" : "bg-hud text-hud-foreground"}`} title={paused ? "Resume gestures (P)" : "Pause gestures (P)"}>
+            <button
+              onClick={next}
+              aria-label="Next slide"
+              className="rounded-md bg-hud px-3 py-2 text-hud-foreground backdrop-blur"
+            >
+              <ChevronRight className="size-4" />
+            </button>
+            <button
+              onClick={() => setPaused((v) => !v)}
+              aria-label={paused ? "Resume gesture control" : "Pause gesture control"}
+              className={`rounded-md px-2 py-2 backdrop-blur ${paused ? "bg-primary text-primary-foreground" : "bg-hud text-hud-foreground"}`}
+              title={paused ? "Resume gestures (P)" : "Pause gestures (P)"}
+            >
               {paused ? <Play className="size-4" /> : <Pause className="size-4" />}
             </button>
             <div className="ml-1 flex items-center gap-2 rounded-md bg-hud px-3 py-2 font-mono text-xs text-hud-foreground backdrop-blur">
-              <span className={`size-2 rounded-full ${paused ? "bg-yellow-500" : ready ? "bg-primary" : "bg-muted-foreground"}`} />
-              {error ? "camera error" : paused ? "paused" : ready ? (gestureNow ? gestureNow.replace("_", " ") : "watching…") : "starting…"}
+              <span
+                className={`size-2 rounded-full ${paused ? "bg-yellow-500" : ready ? "bg-primary" : "bg-muted-foreground"}`}
+              />
+              {error
+                ? "camera error"
+                : paused
+                  ? "paused"
+                  : ready
+                    ? gestureNow
+                      ? gestureNow.replace("_", " ")
+                      : "watching…"
+                    : "starting…"}
             </div>
           </motion.div>
         )}

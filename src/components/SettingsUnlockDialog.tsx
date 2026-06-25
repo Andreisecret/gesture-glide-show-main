@@ -1,4 +1,11 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Lock, Coffee, Unlock } from "lucide-react";
 
@@ -21,7 +28,12 @@ export function SettingsUnlockDialog({ step, onStepChange, onUnlock }: Props) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={(o) => { if (!o) close(); }}>
+    <Dialog
+      open={open}
+      onOpenChange={(o) => {
+        if (!o) close();
+      }}
+    >
       <DialogContent className="sm:max-w-md">
         {step === "locked" && (
           <>
@@ -47,7 +59,8 @@ export function SettingsUnlockDialog({ step, onStepChange, onUnlock }: Props) {
             <DialogHeader>
               <DialogTitle className="text-center font-mono">Enjoying GestureDeck?</DialogTitle>
               <DialogDescription className="text-center">
-                This app is free and built by one person. If it's useful to you, a small tip keeps it going.
+                This app is free and built by one person. If it's useful to you, a small tip keeps
+                it going.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter className="flex-col gap-2 sm:flex-col sm:space-x-0">
@@ -76,7 +89,8 @@ export function SettingsUnlockDialog({ step, onStepChange, onUnlock }: Props) {
             <DialogHeader>
               <DialogTitle className="text-center font-mono">Thank you! 💛</DialogTitle>
               <DialogDescription className="text-center">
-                Seriously — it means a lot. Your tab should've opened in a new window. Hit continue to unlock your settings.
+                Seriously — it means a lot. Your tab should've opened in a new window. Hit continue
+                to unlock your settings.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter className="sm:justify-center">
@@ -88,7 +102,9 @@ export function SettingsUnlockDialog({ step, onStepChange, onUnlock }: Props) {
         {step === "thanks-broke" && (
           <>
             <DialogHeader>
-              <DialogTitle className="text-center font-mono">That's ok, I don't either :)</DialogTitle>
+              <DialogTitle className="text-center font-mono">
+                That's ok, I don't either :)
+              </DialogTitle>
               <DialogDescription className="text-center">
                 Just enjoy the app. Maybe share it with a friend instead.
               </DialogDescription>
