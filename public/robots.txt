@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://gesture-glide-show.lovable.app/sitemap.xml
