@@ -67,13 +67,7 @@ const SETTINGS_KEY = "gesturedeck.settings.v1";
 
 function loadSettings(): Settings {
   if (typeof window === "undefined")
-    return {
-      bindings: DEFAULT_BINDINGS,
-      cooldownMs: 1500,
-      sensitivity: 0.6,
-      mirror: true,
-      showWebcam: true,
-    };
+    return { bindings: DEFAULT_BINDINGS, cooldownMs: 1500, sensitivity: 0.6, mirror: true, showWebcam: true };
   try {
     const raw = localStorage.getItem(SETTINGS_KEY);
     if (!raw) throw 0;
@@ -86,13 +80,7 @@ function loadSettings(): Settings {
       showWebcam: parsed.showWebcam ?? true,
     };
   } catch {
-    return {
-      bindings: DEFAULT_BINDINGS,
-      cooldownMs: 1500,
-      sensitivity: 0.6,
-      mirror: true,
-      showWebcam: true,
-    };
+    return { bindings: DEFAULT_BINDINGS, cooldownMs: 1500, sensitivity: 0.6, mirror: true, showWebcam: true };
   }
 }
 
@@ -103,9 +91,7 @@ type State = {
   blank: boolean;
   pointer: boolean;
   settings: Settings;
-  documentUrl: string | null;
-  totalPages: number;
-  setDeck: (name: string, slides: Slide[], docUrl?: string | null, totalPages?: number) => void;
+  setDeck: (name: string, slides: Slide[]) => void;
   clearDeck: () => void;
   go: (i: number) => void;
   next: () => void;
@@ -126,29 +112,15 @@ export const useDeck = create<State>((set, get) => ({
   blank: false,
   pointer: false,
   settings: loadSettings(),
-  documentUrl: null,
-  totalPages: 0,
-  setDeck: (name, slides, docUrl = null, totalPages = 0) =>
-    set({
-      deckName: name,
-      slides,
-      current: 0,
-      blank: false,
-      pointer: false,
-      documentUrl: docUrl,
-      totalPages,
-    }),
+  setDeck: (name, slides) => set({ deckName: name, slides, current: 0, blank: false, pointer: false }),
   clearDeck: () => {
-    get().slides.forEach((s) => {
-      if (s.url) URL.revokeObjectURL(s.url);
-    });
-    if (get().documentUrl) URL.revokeObjectURL(get().documentUrl);
-    set({ slides: [], deckName: "", current: 0, documentUrl: null, totalPages: 0 });
+    get().slides.forEach((s) => { if (s.url) URL.revokeObjectURL(s.url); });
+    set({ slides: [], deckName: "", current: 0 });
   },
   go: (i) => {
-    const total = get().documentUrl ? get().totalPages : get().slides.length;
-    if (total === 0) return;
-    const clamped = Math.max(0, Math.min(total - 1, i));
+    const { slides } = get();
+    if (!slides.length) return;
+    const clamped = Math.max(0, Math.min(slides.length - 1, i));
     set({ current: clamped });
   },
   next: () => get().go(get().current + 1),
@@ -160,9 +132,7 @@ export const useDeck = create<State>((set, get) => ({
   updateSettings: (patch) => {
     const settings = { ...get().settings, ...patch };
     set({ settings });
-    try {
-      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
-    } catch {}
+    try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch {}
   },
   setBinding: (g, a) => get().updateSettings({ bindings: { ...get().settings.bindings, [g]: a } }),
   resetBindings: () => get().updateSettings({ bindings: DEFAULT_BINDINGS }),
@@ -171,29 +141,15 @@ export const useDeck = create<State>((set, get) => ({
 export function runAction(action: ActionName) {
   const s = useDeck.getState();
   switch (action) {
-    case "next":
-      s.next();
-      break;
-    case "prev":
-      s.prev();
-      break;
-    case "first":
-      s.first();
-      break;
-    case "last":
-      s.last();
-      break;
-    case "toggle_blank":
-      s.toggleBlank();
-      break;
-    case "toggle_pointer":
-      s.togglePointer();
-      break;
+    case "next": s.next(); break;
+    case "prev": s.prev(); break;
+    case "first": s.first(); break;
+    case "last": s.last(); break;
+    case "toggle_blank": s.toggleBlank(); break;
+    case "toggle_pointer": s.togglePointer(); break;
     case "exit_present":
-      if (typeof document !== "undefined" && document.fullscreenElement)
-        document.exitFullscreen().catch(() => {});
+      if (typeof document !== "undefined" && document.fullscreenElement) document.exitFullscreen().catch(() => {});
       break;
-    case "none":
-      break;
+    case "none": break;
   }
 }

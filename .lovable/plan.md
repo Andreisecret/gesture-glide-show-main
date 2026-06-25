@@ -1,3 +1,4 @@
+
 Caveman plan. Current detector in `src/hooks/useHandGestures.ts`. Single-frame classify, naive thresholds, wrist-x swipe, no smoothing, no confirmation. 3 paths to improve. Pick one.
 
 ## Option A — Temporal smoothing + confirmation (cheap, big win)
@@ -45,7 +46,6 @@ Start A. If still bad, layer B. Go C only if A+B not enough or you want official
 ## Tech details
 
 Files touched:
-
 - `src/hooks/useHandGestures.ts` — main edit site for all options.
 - `src/lib/deckStore.ts` — no change (GestureName stable).
 - A: add buffers in refs, change `classify` signature to return raw label, smoothing in hook loop.

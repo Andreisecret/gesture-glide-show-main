@@ -66,9 +66,7 @@ function loadGsi(): Promise<void> {
     );
     if (existing) {
       existing.addEventListener("load", () => resolve());
-      existing.addEventListener("error", () =>
-        reject(new Error("Failed to load Google Identity Services")),
-      );
+      existing.addEventListener("error", () => reject(new Error("Failed to load Google Identity Services")));
       return;
     }
     const s = document.createElement("script");

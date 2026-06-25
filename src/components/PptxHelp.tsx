@@ -11,8 +11,8 @@ export function PptxHelp({ fileName }: { fileName?: string }) {
               {fileName ? <>“{fileName}” is a .pptx file.</> : <>PowerPoint .pptx files</>}
             </div>
             <p className="mt-1 text-xs text-muted-foreground">
-              GestureDeck renders slides client-side and .pptx can't be parsed reliably in the
-              browser. Convert to PDF or open it via Google Slides — both take ~15 seconds.
+              GestureDeck renders slides client-side and .pptx can't be parsed reliably in the browser.
+              Convert to PDF or open it via Google Slides — both take ~15 seconds.
             </p>
           </div>
           <div className="grid gap-2 sm:grid-cols-3">
@@ -33,9 +33,7 @@ export function PptxHelp({ fileName }: { fileName?: string }) {
             >
               <span className="flex items-center gap-1.5">
                 CloudConvert .pptx → .pdf
-                <span className="rounded-full bg-green-500 px-1.5 py-0.5 text-[10px] font-semibold text-white">
-                  Recommended
-                </span>
+                <span className="rounded-full bg-green-500 px-1.5 py-0.5 text-[10px] font-semibold text-white">Recommended</span>
               </span>
               <ExternalLink className="size-3.5 text-muted-foreground" />
             </a>

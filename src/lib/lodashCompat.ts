@@ -20,10 +20,7 @@ export function get(object: unknown, path: PropertyPath, defaultValue?: unknown)
   return value === undefined ? defaultValue : value;
 }
 
-export function omit<T extends Record<string, unknown>>(
-  object: T | null | undefined,
-  paths: PropertyPath[],
-) {
+export function omit<T extends Record<string, unknown>>(object: T | null | undefined, paths: PropertyPath[]) {
   const clone: Record<string, unknown> = { ...(object ?? {}) };
 
   paths.forEach((path) => {

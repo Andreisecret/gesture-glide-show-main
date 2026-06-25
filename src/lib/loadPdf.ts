@@ -1,10 +1,7 @@
 import type { Slide } from "./deckStore";
 
 // Lazy import pdfjs to keep SSR safe
-export async function loadPdfToSlides(
-  file: File,
-  onProgress?: (p: number) => void,
-): Promise<Slide[]> {
+export async function loadPdfToSlides(file: File, onProgress?: (p: number) => void): Promise<Slide[]> {
   const pdfjs: any = await import("pdfjs-dist");
   // Vite worker import
   const workerUrl = (await import("pdfjs-dist/build/pdf.worker.mjs?url")).default;
@@ -18,7 +15,7 @@ export async function loadPdfToSlides(
   for (let i = 1; i <= doc.numPages; i++) {
     const page = await doc.getPage(i);
     const viewport = page.getViewport({ scale: 1 });
-    const scale = Math.min(target / viewport.width, (target * 9) / 16 / viewport.height, 2);
+    const scale = Math.min(target / viewport.width, (target * 9 / 16) / viewport.height, 2);
     const scaled = page.getViewport({ scale });
     const canvas = document.createElement("canvas");
     canvas.width = Math.ceil(scaled.width);

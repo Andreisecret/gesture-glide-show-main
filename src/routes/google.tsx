@@ -89,10 +89,7 @@ function GooglePage() {
                 Settings page
               </a>
               . You'll need a Google Cloud project with the Slides API enabled and
-              <span className="font-mono">
-                {" "}
-                {typeof window !== "undefined" ? window.location.origin : ""}{" "}
-              </span>
+              <span className="font-mono"> {typeof window !== "undefined" ? window.location.origin : ""} </span>
               listed as an authorized JavaScript origin.
             </p>
           </div>

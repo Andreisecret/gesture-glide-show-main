@@ -4,12 +4,11 @@ import type { GestureName } from "@/lib/deckStore";
 type Landmark = { x: number; y: number; z: number };
 
 const WASM_BASE = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.35/wasm";
-const MODEL_URL =
-  "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task";
+const MODEL_URL = "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task";
 
 // Finger tip / pip pairs (extension test)
 const FINGERS: Array<[number, number]> = [
-  [8, 6], // index
+  [8, 6],   // index
   [12, 10], // middle
   [16, 14], // ring
   [20, 18], // pinky
@@ -66,20 +65,14 @@ export function useHandGestures(opts: {
           minHandDetectionConfidence: 0.5,
           minTrackingConfidence: 0.5,
         });
-        if (cancelled) {
-          landmarker.close();
-          return;
-        }
+        if (cancelled) { landmarker.close(); return; }
         landmarkerRef.current = landmarker;
 
         const stream = await navigator.mediaDevices.getUserMedia({
           video: { width: 640, height: 480, facingMode: "user" },
           audio: false,
         });
-        if (cancelled) {
-          stream.getTracks().forEach((t) => t.stop());
-          return;
-        }
+        if (cancelled) { stream.getTracks().forEach((t) => t.stop()); return; }
         streamRef.current = stream;
         const video = optsRef.current.videoRef.current;
         if (!video) return;
@@ -106,14 +99,13 @@ export function useHandGestures(opts: {
       if (handRaw) {
         // EMA smooth landmarks (alpha = 0.5)
         const prev = smoothedLmRef.current;
-        const hand: Landmark[] =
-          prev && prev.length === handRaw.length
-            ? handRaw.map((p, i) => ({
-                x: prev[i].x * 0.5 + p.x * 0.5,
-                y: prev[i].y * 0.5 + p.y * 0.5,
-                z: prev[i].z * 0.5 + p.z * 0.5,
-              }))
-            : handRaw;
+        const hand: Landmark[] = prev && prev.length === handRaw.length
+          ? handRaw.map((p, i) => ({
+              x: prev[i].x * 0.5 + p.x * 0.5,
+              y: prev[i].y * 0.5 + p.y * 0.5,
+              z: prev[i].z * 0.5 + p.z * 0.5,
+            }))
+          : handRaw;
         smoothedLmRef.current = hand;
 
         // Hand size for normalization (palm width)
@@ -126,13 +118,7 @@ export function useHandGestures(opts: {
           return;
         }
 
-        const rawLabel = classify(
-          hand,
-          ts,
-          motionHistoryRef.current,
-          optsRef.current.sensitivity,
-          handSize,
-        );
+        const rawLabel = classify(hand, ts, motionHistoryRef.current, optsRef.current.sensitivity, handSize);
         const smoothed = pushLabel(rawLabel);
         setCurrent(smoothed);
 
@@ -166,10 +152,7 @@ export function useHandGestures(opts: {
           canvas.width = video.videoWidth || 640;
           canvas.height = video.videoHeight || 480;
           ctx.save();
-          if (optsRef.current.mirror) {
-            ctx.translate(canvas.width, 0);
-            ctx.scale(-1, 1);
-          }
+          if (optsRef.current.mirror) { ctx.translate(canvas.width, 0); ctx.scale(-1, 1); }
           ctx.clearRect(0, 0, canvas.width, canvas.height);
           ctx.fillStyle = "rgba(140,255,180,0.9)";
           ctx.strokeStyle = "rgba(140,255,180,0.6)";
@@ -207,10 +190,7 @@ export function useHandGestures(opts: {
       let bestKey: string | null = null;
       let bestN = 0;
       for (const k in counts) {
-        if (counts[k] > bestN) {
-          bestN = counts[k];
-          bestKey = k;
-        }
+        if (counts[k] > bestN) { bestN = counts[k]; bestKey = k; }
       }
       if (bestN >= 4 && bestKey && bestKey !== "__null__") return bestKey as GestureName;
       return null;
@@ -264,8 +244,7 @@ function classify(
       const sign = Math.sign(tail[tail.length - 1].x - tail[0].x);
       for (let i = 1; i < tail.length; i++) {
         if (Math.sign(tail[i].x - tail[i - 1].x) !== sign && tail[i].x !== tail[i - 1].x) {
-          monotonic = false;
-          break;
+          monotonic = false; break;
         }
       }
       if (Math.abs(dxNorm) > thresh && monotonic) {

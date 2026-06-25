@@ -12,19 +12,14 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "GestureDeck — Control slides with hand gestures" },
-      {
-        name: "description",
-        content:
-          "Upload a PDF or PPTX and navigate your presentation using webcam hand gestures. Fully in-browser, private by design.",
-      },
+      { name: "description", content: "Upload a PDF or PPTX and navigate your presentation using webcam hand gestures. Fully in-browser, private by design." },
       { property: "og:title", content: "GestureDeck — Control slides with hand gestures" },
-      {
-        property: "og:description",
-        content: "Upload a PDF or PPTX and navigate your presentation using webcam hand gestures.",
-      },
+      { property: "og:description", content: "Upload a PDF or PPTX and navigate your presentation using webcam hand gestures." },
       { property: "og:url", content: "https://gesture-glide-show.lovable.app/" },
     ],
-    links: [{ rel: "canonical", href: "https://gesture-glide-show.lovable.app/" }],
+    links: [
+      { rel: "canonical", href: "https://gesture-glide-show.lovable.app/" },
+    ],
   }),
   component: LandingPage,
 });
@@ -39,36 +34,29 @@ function LandingPage() {
   const [dragOver, setDragOver] = useState(false);
   const [loadingLabel, setLoadingLabel] = useState("Rasterizing slides");
 
-  const handleFile = useCallback(
-    async (file: File) => {
-      const name = file.name.toLowerCase();
-      const isPptx = name.endsWith(".pptx");
-      const isPdf = name.endsWith(".pdf");
-      if (!isPptx && !isPdf) {
-        toast.error("Unsupported file", { description: "Upload a .pdf or .pptx file." });
-        return;
-      }
-      try {
-        setLoading(true);
-        setProgress(0);
-        setLoadingLabel(isPptx ? "Converting PPTX" : "Rasterizing slides");
-        const out = isPptx
-          ? await loadPptxToSlides(file, setProgress)
-          : await loadPdfToSlides(file, setProgress);
-        const docUrl = URL.createObjectURL(file);
-        setDeck(file.name, out, docUrl, out.length);
-        toast.success(`Loaded ${out.length} slides`);
-        navigate({ to: "/present" });
-      } catch (e: any) {
-        toast.error(isPptx ? "Failed to convert PPTX" : "Failed to load PDF", {
-          description: e?.message ?? String(e),
-        });
-      } finally {
-        setLoading(false);
-      }
-    },
-    [navigate, setDeck],
-  );
+  const handleFile = useCallback(async (file: File) => {
+    const name = file.name.toLowerCase();
+    const isPptx = name.endsWith(".pptx");
+    const isPdf = name.endsWith(".pdf");
+    if (!isPptx && !isPdf) {
+      toast.error("Unsupported file", { description: "Upload a .pdf or .pptx file." });
+      return;
+    }
+    try {
+      setLoading(true); setProgress(0);
+      setLoadingLabel(isPptx ? "Converting PPTX" : "Rasterizing slides");
+      const out = isPptx
+        ? await loadPptxToSlides(file, setProgress)
+        : await loadPdfToSlides(file, setProgress);
+      setDeck(file.name, out);
+      toast.success(`Loaded ${out.length} slides`);
+      navigate({ to: "/present" });
+    } catch (e: any) {
+      toast.error(isPptx ? "Failed to convert PPTX" : "Failed to load PDF", { description: e?.message ?? String(e) });
+    } finally {
+      setLoading(false);
+    }
+  }, [navigate, setDeck]);
 
   return (
     <div className="min-h-screen">
@@ -82,15 +70,13 @@ function LandingPage() {
             Present with your <span className="text-primary">hands.</span>
           </h1>
           <p className="mx-auto max-w-xl text-base text-muted-foreground">
-            Drop a PDF, allow your camera, and drive the deck with swipes, fists, and pointing — all
-            running locally in your browser.
+            Drop a PDF, allow your camera, and drive the deck with swipes, fists, and pointing —
+            all running locally in your browser.
           </p>
         </section>
 
         <section className="mt-16" aria-labelledby="upload-heading">
-          <h2 id="upload-heading" className="sr-only">
-            Upload your deck
-          </h2>
+          <h2 id="upload-heading" className="sr-only">Upload your deck</h2>
           <div className="mb-6 flex flex-wrap items-center justify-center gap-3">
             <a
               href="https://buymeacoffee.com/andreibos"
@@ -119,16 +105,11 @@ function LandingPage() {
             </a>
           </div>
           <label
-            onDragOver={(e) => {
-              e.preventDefault();
-              setDragOver(true);
-            }}
+            onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
             onDragLeave={() => setDragOver(false)}
             onDrop={(e) => {
-              e.preventDefault();
-              setDragOver(false);
-              const f = e.dataTransfer.files?.[0];
-              if (f) handleFile(f);
+              e.preventDefault(); setDragOver(false);
+              const f = e.dataTransfer.files?.[0]; if (f) handleFile(f);
             }}
             className={`group relative flex cursor-pointer flex-col items-center justify-center gap-4 rounded-2xl border-2 border-dashed bg-card/30 px-8 py-20 transition ${dragOver ? "border-primary bg-primary/5" : "border-border hover:border-primary/60"}`}
           >
@@ -136,10 +117,7 @@ function LandingPage() {
               type="file"
               accept=".pdf,.pptx,application/pdf"
               className="absolute inset-0 cursor-pointer opacity-0"
-              onChange={(e) => {
-                const f = e.target.files?.[0];
-                if (f) handleFile(f);
-              }}
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }}
               disabled={loading}
             />
             {loading ? (
@@ -149,10 +127,7 @@ function LandingPage() {
                   {loadingLabel} · {Math.round(progress * 100)}%
                 </div>
                 <div className="h-1 w-64 overflow-hidden rounded-full bg-muted">
-                  <div
-                    className="h-full bg-primary transition-all"
-                    style={{ width: `${progress * 100}%` }}
-                  />
+                  <div className="h-full bg-primary transition-all" style={{ width: `${progress * 100}%` }} />
                 </div>
               </>
             ) : (
@@ -161,12 +136,8 @@ function LandingPage() {
                   <Upload className="size-8" />
                 </div>
                 <div className="text-center">
-                  <div className="font-mono text-base text-foreground">
-                    Drop a .pdf or .pptx here
-                  </div>
-                  <div className="mt-1 text-xs text-muted-foreground">
-                    or click to browse · converted locally in your browser
-                  </div>
+                <div className="font-mono text-base text-foreground">Drop a .pdf or .pptx here</div>
+                  <div className="mt-1 text-xs text-muted-foreground">or click to browse · converted locally in your browser</div>
                 </div>
               </>
             )}
@@ -187,31 +158,18 @@ function LandingPage() {
         </section>
 
         <section aria-labelledby="how-heading" className="mt-24">
-          <h2 id="how-heading" className="sr-only">
-            How it works
-          </h2>
+          <h2 id="how-heading" className="sr-only">How it works</h2>
           <div className="grid gap-6 md:grid-cols-3">
-            {[
-              {
-                t: "1 · Upload",
-                d: "Drop a PDF. Pages render to crisp 1920px canvases right in your browser.",
-              },
-              {
-                t: "2 · Gesture",
-                d: "MediaPipe Hands tracks your hand. Bind swipes, fists, peace signs to any action.",
-              },
-              {
-                t: "3 · Present",
-                d: "Fullscreen view, laser pointer follows your index finger, blank-screen on cue.",
-              },
-            ].map((c) => (
-              <div key={c.t} className="rounded-xl border border-border bg-card/30 p-5">
-                <div className="font-mono text-xs uppercase tracking-widest text-primary">
-                  {c.t}
-                </div>
-                <div className="mt-2 text-sm text-muted-foreground">{c.d}</div>
-              </div>
-            ))}
+          {[
+            { t: "1 · Upload", d: "Drop a PDF. Pages render to crisp 1920px canvases right in your browser." },
+            { t: "2 · Gesture", d: "MediaPipe Hands tracks your hand. Bind swipes, fists, peace signs to any action." },
+            { t: "3 · Present", d: "Fullscreen view, laser pointer follows your index finger, blank-screen on cue." },
+          ].map((c) => (
+            <div key={c.t} className="rounded-xl border border-border bg-card/30 p-5">
+              <div className="font-mono text-xs uppercase tracking-widest text-primary">{c.t}</div>
+              <div className="mt-2 text-sm text-muted-foreground">{c.d}</div>
+            </div>
+          ))}
           </div>
         </section>
       </main>

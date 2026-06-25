@@ -14,15 +14,10 @@ export default defineConfig({
   },
   vite: {
     resolve: {
-      alias: [
-        {
-          find: /^lodash$/,
-          replacement: new URL("./src/lib/lodashCompat.ts", import.meta.url).pathname,
-        },
-      ],
+      alias: [{ find: /^lodash$/, replacement: new URL("./src/lib/lodashCompat.ts", import.meta.url).pathname }],
     },
     optimizeDeps: {
-      include: ["pptx-preview", "echarts", "uuid", "html-to-image", "@nutrient-sdk/viewer"],
+      include: ["pptx-preview", "echarts", "uuid", "html-to-image"],
     },
   },
 });

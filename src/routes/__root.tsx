@@ -74,34 +74,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "GestureDeck" },
-      {
-        name: "description",
-        content: "Control slide presentations with hand gestures in your browser.",
-      },
+      { name: "description", content: "Control slide presentations with hand gestures in your browser." },
       { name: "author", content: "GestureDeck" },
       { property: "og:title", content: "GestureDeck" },
-      {
-        property: "og:description",
-        content: "Control slide presentations with hand gestures in your browser.",
-      },
+      { property: "og:description", content: "Control slide presentations with hand gestures in your browser." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
       { name: "twitter:title", content: "GestureDeck" },
-      {
-        name: "twitter:description",
-        content: "Control slide presentations with hand gestures in your browser.",
-      },
-      {
-        property: "og:image",
-        content:
-          "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/b500f1bd-7744-40a8-9efe-a072978f169a",
-      },
-      {
-        name: "twitter:image",
-        content:
-          "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/b500f1bd-7744-40a8-9efe-a072978f169a",
-      },
+      { name: "twitter:description", content: "Control slide presentations with hand gestures in your browser." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/b500f1bd-7744-40a8-9efe-a072978f169a" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/b500f1bd-7744-40a8-9efe-a072978f169a" },
     ],
     links: [
       {
