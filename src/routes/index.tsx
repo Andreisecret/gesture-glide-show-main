@@ -82,17 +82,10 @@ function LandingPage() {
               href="https://cloudconvert.com/pptx-to-pdf"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card/40 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-card/60"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-sky-500/30 bg-sky-500/10 px-3 py-1.5 text-xs font-medium text-sky-600 transition-colors hover:bg-sky-500/20"
             >
               Convert PPTX to PDF
             </a>
-            <Link
-              to="/google"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card/40 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-card/60"
-            >
-              <Presentation className="size-4" />
-              Google Slides
-            </Link>
             <a
               href="https://buymeacoffee.com/andreibos"
               target="_blank"
@@ -102,6 +95,13 @@ function LandingPage() {
               <Coffee className="size-5" />
               Support
             </a>
+            <Link
+              to="/google"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card/40 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-card/60"
+            >
+              <Presentation className="size-4" />
+              Google Slides
+            </Link>
           </div>
           <label
             onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
