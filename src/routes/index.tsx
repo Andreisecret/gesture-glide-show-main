@@ -138,6 +138,7 @@ function LandingPage() {
                 <div className="text-center">
                 <div className="font-mono text-base text-foreground">Drop a .pdf or .pptx here</div>
                   <div className="mt-1 text-xs text-muted-foreground">or click to browse · converted locally in your browser</div>
+                  <div className="mt-1 text-xs text-amber-500">PDF recommended for best compatibility</div>
                 </div>
               </>
             )}
