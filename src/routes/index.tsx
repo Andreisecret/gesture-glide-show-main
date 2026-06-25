@@ -77,22 +77,21 @@ function LandingPage() {
 
         <section className="mt-16" aria-labelledby="upload-heading">
           <h2 id="upload-heading" className="sr-only">Upload your deck</h2>
-          <div className="mb-6 flex flex-wrap items-center justify-center gap-3">
+          <div className="mb-6 flex flex-wrap items-center justify-center gap-2">
             <a
-              href="https://buymeacoffee.com/andreibos"
+              href="https://cloudconvert.com/pptx-to-pdf"
               target="_blank"
               rel="noopener noreferrer"
-              className="invisible inline-flex items-center gap-2 rounded-lg bg-yellow-500/10 px-4 py-2 text-base font-medium text-yellow-500"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card/40 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-card/60"
             >
-              <Coffee className="size-5" />
-              Support
+              Convert PPTX to PDF
             </a>
             <Link
               to="/google"
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-base font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card/40 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-card/60"
             >
-              <Presentation className="size-5" />
-              Open from Google Slides
+              <Presentation className="size-4" />
+              Google Slides
             </Link>
             <a
               href="https://buymeacoffee.com/andreibos"
